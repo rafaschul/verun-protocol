@@ -1,3 +1,4 @@
+import '@nomicfoundation/hardhat-ethers';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -7,6 +8,7 @@ if (process.env.ARB_SEPOLIA_RPC_URL) {
     type: 'http',
     url: process.env.ARB_SEPOLIA_RPC_URL,
     accounts: process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [],
+    chainId: 421614,
   };
 }
 

@@ -1,48 +1,46 @@
-import { ethers } from 'hardhat';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { network } from 'hardhat';
 
 async function main() {
+  const { ethers } = await network.connect();
   const [deployer] = await ethers.getSigners();
-  console.log('Deployer:', deployer.address);
+  console.log('Deploying with:', deployer.address);
 
-  const v1 = process.env.VALIDATOR_1 || deployer.address;
-  const v2 = process.env.VALIDATOR_2 || deployer.address;
-  const v3 = process.env.VALIDATOR_3 || deployer.address;
+  const v1 = process.env.VALIDATOR_1_ADDRESS;
+  const v2 = process.env.VALIDATOR_2_ADDRESS;
+  const v3 = process.env.VALIDATOR_3_ADDRESS;
 
-  const AgentRegistry = await ethers.getContractFactory('AgentRegistry');
-  const agentRegistry = await AgentRegistry.deploy();
-  await agentRegistry.waitForDeployment();
+  if (!v1 || !v2 || !v3) {
+    throw new Error('Missing VALIDATOR_1_ADDRESS / VALIDATOR_2_ADDRESS / VALIDATOR_3_ADDRESS');
+  }
 
-  const ValidatorRegistry = await ethers.getContractFactory('ValidatorRegistry');
-  const validatorRegistry = await ValidatorRegistry.deploy([v1, v2, v3]);
-  await validatorRegistry.waitForDeployment();
+  const MockUSDC = await ethers.deployContract('MockUSDC');
+  await MockUSDC.waitForDeployment();
+  console.log('MockUSDC:', await MockUSDC.getAddress());
 
-  const EvaluationEngine = await ethers.getContractFactory('EvaluationEngine');
-  const evaluationEngine = await EvaluationEngine.deploy();
-  await evaluationEngine.waitForDeployment();
+  const AgentRegistry = await ethers.deployContract('AgentRegistry');
+  await AgentRegistry.waitForDeployment();
+  console.log('AgentRegistry:', await AgentRegistry.getAddress());
 
-  const AuditLog = await ethers.getContractFactory('AuditLog');
-  const auditLog = await AuditLog.deploy();
-  await auditLog.waitForDeployment();
+  const ValidatorRegistry = await ethers.deployContract('ValidatorRegistry', [[v1, v2, v3]]);
+  await ValidatorRegistry.waitForDeployment();
+  console.log('ValidatorRegistry:', await ValidatorRegistry.getAddress());
 
-  const usdc = process.env.USDC_TESTNET_ADDRESS || '0x0000000000000000000000000000000000000000';
+  const EvaluationEngine = await ethers.deployContract('EvaluationEngine');
+  await EvaluationEngine.waitForDeployment();
+  console.log('EvaluationEngine:', await EvaluationEngine.getAddress());
+
+  const AuditLog = await ethers.deployContract('AuditLog');
+  await AuditLog.waitForDeployment();
+  console.log('AuditLog:', await AuditLog.getAddress());
+
   const treasury = process.env.TREASURY_ADDRESS || deployer.address;
   const feeAmount = process.env.FEE_AMOUNT_WEI || '1000';
+  const FeeVault = await ethers.deployContract('FeeVault', [await MockUSDC.getAddress(), treasury, feeAmount]);
+  await FeeVault.waitForDeployment();
+  console.log('FeeVault:', await FeeVault.getAddress());
 
-  const FeeVault = await ethers.getContractFactory('FeeVault');
-  const feeVault = await FeeVault.deploy(usdc, treasury, feeAmount);
-  await feeVault.waitForDeployment();
-
-  console.log('AgentRegistry:', await agentRegistry.getAddress());
-  console.log('ValidatorRegistry:', await validatorRegistry.getAddress());
-  console.log('EvaluationEngine:', await evaluationEngine.getAddress());
-  console.log('AuditLog:', await auditLog.getAddress());
-  console.log('FeeVault:', await feeVault.getAddress());
+  console.log('\n✅ All contracts deployed on Arbitrum Sepolia');
+  console.log('Explorer: https://sepolia.arbiscan.io');
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+main().catch(console.error);
