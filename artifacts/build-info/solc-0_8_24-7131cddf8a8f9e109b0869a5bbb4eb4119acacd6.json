@@ -1,0 +1,51 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_24-7131cddf8a8f9e109b0869a5bbb4eb4119acacd6",
+  "solcVersion": "0.8.24",
+  "solcLongVersion": "0.8.24+commit.e11b9ed9",
+  "userSourceNameMap": {
+    "contracts/AgentRegistry.sol": "project/contracts/AgentRegistry.sol",
+    "contracts/AuditLog.sol": "project/contracts/AuditLog.sol",
+    "contracts/EvaluationEngine.sol": "project/contracts/EvaluationEngine.sol",
+    "contracts/FeeVault.sol": "project/contracts/FeeVault.sol",
+    "contracts/ValidatorRegistry.sol": "project/contracts/ValidatorRegistry.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "shanghai",
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/AgentRegistry.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\n\ncontract AgentRegistry {\n    struct Agent {\n        address wallet;\n        uint256 stake;\n        uint256 score;\n        uint256 registeredAt;\n        bool active;\n    }\n\n    mapping(address => Agent) public agents;\n\n    event AgentRegistered(address indexed wallet, uint256 stake, uint256 registeredAt);\n    event AgentScoreUpdated(address indexed wallet, uint256 score);\n\n    function registerAgent(address wallet, uint256 stake) external {\n        require(wallet != address(0), 'invalid wallet');\n        require(!agents[wallet].active, 'already registered');\n\n        agents[wallet] = Agent({\n            wallet: wallet,\n            stake: stake,\n            score: 0,\n            registeredAt: block.timestamp,\n            active: true\n        });\n\n        emit AgentRegistered(wallet, stake, block.timestamp);\n    }\n\n    function updateScore(address wallet, uint256 score) external {\n        require(agents[wallet].active, 'not registered');\n        agents[wallet].score = score;\n        emit AgentScoreUpdated(wallet, score);\n    }\n\n    function getAgent(address wallet) external view returns (Agent memory) {\n        return agents[wallet];\n    }\n}\n"
+      },
+      "project/contracts/AuditLog.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\n\ncontract AuditLog {\n    enum Tier {\n        LOW,\n        MED,\n        HIGH,\n        BLOCK\n    }\n\n    struct Verdict {\n        address agentId;\n        Tier tier;\n        uint256 timestamp;\n        string reason;\n    }\n\n    mapping(address => Verdict[]) private history;\n\n    event VerdictLogged(address indexed agentId, Tier tier, uint256 timestamp, string reason);\n    event ValidatorSlashed(address indexed validator, uint256 amount, string reason);\n\n    function logVerdict(address agentId, Tier tier, string calldata reason) external {\n        Verdict memory v = Verdict({\n            agentId: agentId,\n            tier: tier,\n            timestamp: block.timestamp,\n            reason: reason\n        });\n        history[agentId].push(v);\n        emit VerdictLogged(agentId, tier, block.timestamp, reason);\n    }\n\n    function getHistory(address agentId) external view returns (Verdict[] memory) {\n        return history[agentId];\n    }\n\n    function emitSlashed(address validator, uint256 amount, string calldata reason) external {\n        emit ValidatorSlashed(validator, amount, reason);\n    }\n}\n"
+      },
+      "project/contracts/EvaluationEngine.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\n\ncontract EvaluationEngine {\n    enum Tier {\n        LOW,\n        MED,\n        HIGH,\n        BLOCK\n    }\n\n    event VerdictReached(address indexed agentId, Tier tier, string reason);\n\n    function submitEvaluation(\n        address agentId,\n        bytes32 actionRequestHash,\n        bytes[] calldata validatorSignatures,\n        Tier tier,\n        string calldata reason\n    ) external {\n        require(agentId != address(0), 'invalid agent');\n        require(actionRequestHash != bytes32(0), 'invalid request');\n        require(validatorSignatures.length >= 2, 'need 2-of-3');\n\n        emit VerdictReached(agentId, tier, reason);\n    }\n}\n"
+      },
+      "project/contracts/FeeVault.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\n\ninterface IERC20 {\n    function transferFrom(address from, address to, uint256 value) external returns (bool);\n}\n\ncontract FeeVault {\n    IERC20 public immutable usdc;\n    uint256 public immutable feeAmount;\n    address public immutable treasury;\n\n    event FeeReceived(address indexed agentId, uint256 amount, uint256 timestamp);\n\n    constructor(address usdcAddress, address treasuryAddress, uint256 _feeAmount) {\n        usdc = IERC20(usdcAddress);\n        treasury = treasuryAddress;\n        feeAmount = _feeAmount;\n    }\n\n    function chargeFee(address agentId) external {\n        require(usdc.transferFrom(agentId, treasury, feeAmount), 'fee transfer failed');\n        emit FeeReceived(agentId, feeAmount, block.timestamp);\n    }\n}\n"
+      },
+      "project/contracts/ValidatorRegistry.sol": {
+        "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\n\ncontract ValidatorRegistry {\n    address[] private validators;\n\n    constructor(address[3] memory _validators) {\n        for (uint256 i = 0; i < _validators.length; i++) {\n            require(_validators[i] != address(0), 'invalid validator');\n            validators.push(_validators[i]);\n        }\n    }\n\n    function getValidators() external view returns (address[] memory) {\n        return validators;\n    }\n}\n"
+      }
+    }
+  }
+}

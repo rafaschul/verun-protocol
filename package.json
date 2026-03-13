@@ -1,0 +1,27 @@
+{
+  "name": "verun",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "hardhat compile",
+    "validator:1": "PORT=3001 node services/validator-1/index.js",
+    "validator:2": "PORT=3002 node services/validator-2/index.js",
+    "validator:3": "PORT=3003 node services/validator-3/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "hardhat": "^3.1.12"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "ethers": "^6.16.0",
+    "express": "^5.2.1",
+    "pg": "^8.20.0"
+  },
+  "type": "module"
+}
