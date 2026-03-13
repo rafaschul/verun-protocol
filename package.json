@@ -8,7 +8,8 @@
     "compile": "hardhat compile",
     "validator:1": "PORT=3001 node services/validator-1/index.js",
     "validator:2": "PORT=3002 node services/validator-2/index.js",
-    "validator:3": "PORT=3003 node services/validator-3/index.js"
+    "validator:3": "PORT=3003 node services/validator-3/index.js",
+    "deploy:arb": "hardhat run scripts/deploy.js --network arbitrumSepolia"
   },
   "keywords": [],
   "author": "",
