@@ -21,7 +21,11 @@ async function main() {
   await AgentRegistry.waitForDeployment();
   console.log('AgentRegistry:', await AgentRegistry.getAddress());
 
-  const ValidatorRegistry = await ethers.deployContract('ValidatorRegistry', [[v1, v2, v3]]);
+  const ValidatorRegistry = await ethers.deployContract('ValidatorRegistry', [
+    [v1, v2, v3],
+    ['Validator One', 'Validator Two', 'Validator Three'],
+    [v1, v2, v3],
+  ]);
   await ValidatorRegistry.waitForDeployment();
   console.log('ValidatorRegistry:', await ValidatorRegistry.getAddress());
 
@@ -34,8 +38,7 @@ async function main() {
   console.log('AuditLog:', await AuditLog.getAddress());
 
   const treasury = process.env.TREASURY_ADDRESS || deployer.address;
-  const feeAmount = process.env.FEE_AMOUNT_WEI || '1000';
-  const FeeVault = await ethers.deployContract('FeeVault', [await MockUSDC.getAddress(), treasury, feeAmount]);
+  const FeeVault = await ethers.deployContract('FeeVault', [await MockUSDC.getAddress(), treasury]);
   await FeeVault.waitForDeployment();
   console.log('FeeVault:', await FeeVault.getAddress());
 
