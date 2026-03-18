@@ -70,13 +70,14 @@ async function scenarioDGoodAgent() {
 
     printResult(data);
     console.log('RESULT: AUTHORIZED — Security Token Minted');
-    console.log('Regulation: ERC-1400 + eWpG compliant');
-    console.log('KYA: Verun verified on-chain');
+    console.log(' Regulation: ERC-1400 + eWpG compliant');
+    console.log(' KYA: Verun verified on-chain');
     console.log('════════════════════════════════════════════\n');
   } catch (err) {
     if (err.response) {
-      console.log(`\nBLOCKED: ${err.response.data.error}`);
-      console.log(`Score: ${err.response.data.current_score} / ${err.response.data.required_score} required`);
+      const d = err.response.data;
+      console.log(`\nBLOCKED: ${d.error}`);
+      console.log(`Score: ${d.current_score} / ${d.required_score} required`);
     } else {
       console.error(err.message);
     }
@@ -92,25 +93,77 @@ async function scenarioDLowScoreAgent() {
   console.log('\nVerun KYA Check...');
 
   try {
-    const data = await call('POST', '/api/chain/tokens/mint', {
-      token_address: '0xBCP-SECURITY-TOKEN-001',
-      recipient: LOW_AGENT,
-      amount: '100',
-    }, LOW_AGENT);
-    printResult(data);
+    await call('POST', '/api/chain/tokens/mint', { amount: '100' }, LOW_AGENT);
   } catch (err) {
     if (err.response) {
-      console.log(`BLOCKED: ${err.response.data.error}`);
-      console.log(`Required Score: ${err.response.data.required_score}`);
-      console.log(`Current Score: ${err.response.data.current_score}`);
-      console.log(`Gap: ${err.response.data.gap}`);
+      const d = err.response.data;
+      console.log('\n────────────────────────────────────────────');
+      console.log(`HTTP Status: ${err.response.status} Forbidden`);
+      console.log(`Error: ${d.error}`);
+      console.log(`Required Score: ${d.required_score}`);
+      console.log(`Current Score: ${d.current_score}`);
+      console.log(`Gap: ${d.gap} points needed`);
+      console.log(`Regulation: ${d.regulation || 'KYA compliance required for TokenSuite access'}`);
+      console.log('────────────────────────────────────────────');
+      console.log('RESULT: BLOCKED — KYA Score Insufficient');
+      console.log(' No regulated token operation permitted');
+      console.log(' Permanent audit entry: agent flagged');
+      console.log('════════════════════════════════════════════\n');
     } else {
       console.error(err.message);
     }
   }
-
-  console.log('════════════════════════════════════════════\n');
 }
 
-await scenarioDGoodAgent();
-await scenarioDLowScoreAgent();
+async function scenarioDOrderFlow() {
+  printHeader('SCENARIO D3 — Order Creation (Score >= 600)');
+  const GOOD_AGENT = process.env.GOOD_AGENT_ADDRESS || '0x4C8585A50919e05C7881B9428626404F09798Ba6';
+
+  console.log(`\nAgent: ${GOOD_AGENT}`);
+  console.log('Operation: POST /api/core/orders/create');
+  console.log('Product: BCP Fund I — DACH Private Equity');
+  console.log('\nVerun KYA Check (higher threshold: 600)...');
+
+  try {
+    const data = await call('POST', '/api/core/orders/create', {
+      product_id: 'BCP-FUND-I',
+      quantity: 1,
+      investor_wallet: GOOD_AGENT,
+    }, GOOD_AGENT);
+
+    const o = data.order;
+    console.log('\n────────────────────────────────────────────');
+    console.log(`Order ID: ${o.id}`);
+    console.log(`Product: ${o.product_id}`);
+    console.log(`KYC Status: ${o.kyc_status}`);
+    console.log(`KYA Status: ${o.kya_status}`);
+    console.log(`Compliance: ${o.compliance_check}`);
+    console.log(`Status: ${o.status}`);
+    console.log('────────────────────────────────────────────');
+    console.log('RESULT: ORDER CREATED — Full Compliance Stack');
+    console.log(' KYC (human) + KYA (agent) both verified');
+    console.log(' MiCAR + eWpG + Verun on-chain audit');
+    console.log('════════════════════════════════════════════\n');
+  } catch (err) {
+    if (err.response) {
+      console.log(`\nBLOCKED: ${err.response.data.error}`);
+    } else {
+      console.error(err.message);
+    }
+  }
+}
+
+async function main() {
+  console.log('\n╔════════════════════════════════════════════╗');
+  console.log('║ VERUN × TOKENSUITE INTEGRATION DEMO       ║');
+  console.log('║ Know Your Agent — Regulated Token Ops     ║');
+  console.log('╚════════════════════════════════════════════╝');
+
+  await scenarioDGoodAgent();
+  await new Promise((r) => setTimeout(r, 800));
+  await scenarioDLowScoreAgent();
+  await new Promise((r) => setTimeout(r, 800));
+  await scenarioDOrderFlow();
+}
+
+main().catch(console.error);

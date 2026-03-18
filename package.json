@@ -15,6 +15,9 @@
     "demo:b": "node demo/scenario-b-scam-agent.js",
     "demo:c": "node demo/scenario-c-new-agent.js",
     "demo:d": "node demo/scenario-d-tokensuite.js",
+    "tokensuite:api": "node services/tokensuite-api.js",
+    "demo:tokensuite": "node demo/scenario-d-tokensuite.js",
+    "register:tokensuite": "node scripts/register-tokensuite-validator.mjs",
     "tokensuite:mock": "node services/tokensuite-api.js",
     "tokensuite:register-validator": "node scripts/register-tokensuite-validator.mjs"
   },
