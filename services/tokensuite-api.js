@@ -111,30 +111,33 @@ app.post('/api/chain/tokens/transfer', requireStandard, (req, res) => {
 app.post('/api/core/orders/create', requireOrder, (req, res) => {
   const { score, agentId } = req.verun;
   const { product_id, quantity, investor_wallet } = req.body || {};
-  const txHash = fakeTxHash(`order:${agentId}:${product_id || 'BCP-ORDER-001'}`);
 
   res.json({
     platform: 'TokenForge TokenSuite',
-    operation: 'order.create',
+    operation: 'create_order',
     agent: agentId,
     verun_score: score,
     access: 'GRANTED',
     order: {
-      order_id: `ord_${Date.now()}`,
-      product_id: product_id || 'BCP-ORDER-001',
+      id: `ORD-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+      status: 'pending_kyc_confirmation',
+      product_id: product_id || 'BCP-FUND-I',
       quantity: quantity || 1,
       investor_wallet: investor_wallet || agentId,
-      status: 'created'
-    },
-    settlement: {
-      tx_hash: txHash,
-      basescan: `https://sepolia.basescan.org/tx/${txHash}`
+      compliance_check: 'passed',
+      kyc_status: 'verified',
+      kya_status: 'verun_verified',
+      created_at: new Date().toISOString()
     },
     timestamp: new Date().toISOString()
   });
 });
 
-const PORT = Number(process.env.PORT || 3400);
+const PORT = Number(process.env.TOKENSUITE_API_PORT || 4000);
 app.listen(PORT, () => {
-  console.log(`TokenSuite mock API listening on :${PORT}`);
+  console.log(`TokenSuite Mock API: port ${PORT}`);
+  console.log('Verun KYA Gate: ACTIVE');
+  console.log('Score Requirements: READ=300 | STANDARD=500 | ORDER=600');
 });
+
+export default app;
