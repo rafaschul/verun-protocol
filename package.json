@@ -9,7 +9,13 @@
     "validator:1": "PORT=3001 node services/validator-1/index.js",
     "validator:2": "PORT=3002 node services/validator-2/index.js",
     "validator:3": "PORT=3003 node services/validator-3/index.js",
-    "deploy:arb": "hardhat run scripts/deploy.js --network arbitrumSepolia"
+    "deploy:arb": "hardhat run scripts/deploy.js --network arbitrumSepolia",
+    "consensus:test:base": "node scripts/consensus-integration-base.mjs",
+    "demo:a": "node demo/scenario-a-good-agent.js",
+    "demo:b": "node demo/scenario-b-scam-agent.js",
+    "demo:c": "node demo/scenario-c-new-agent.js",
+    "tokensuite:mock": "node services/tokensuite-api.js",
+    "tokensuite:register-validator": "node scripts/register-tokensuite-validator.mjs"
   },
   "keywords": [],
   "author": "",
