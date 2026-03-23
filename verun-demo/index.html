@@ -1,27 +1,314 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Verun Demo</title>
-  <style>
-    body { margin:0; font-family: Inter, system-ui, sans-serif; background:#070b14; color:#e8efff; display:grid; place-items:center; min-height:100vh; }
-    .card { border:1px solid #2a3f73; background:#0f1629; border-radius:16px; padding:28px; width:min(92vw,720px); }
-    h1 { margin:0 0 8px; color:#9dc0ff; }
-    p { margin:0 0 14px; line-height:1.5; }
-    a { color:#8fc7ff; }
-    ul { margin:10px 0 0 18px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verun Protocol — Live Demo</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0c0f;--bg2:#13131a;--bg3:#1a1a24;
+  --text:#e8e6f0;--muted:#8b8899;
+  --v:#7c4ddc;--vl:#a478f0;--vd:rgba(124,77,220,0.15);
+  --g:#34c77b;--gd:rgba(52,199,123,0.1);
+  --r:#e05555;--rd:rgba(224,85,85,0.1);
+  --a:#f0a030;--ad:rgba(240,160,48,0.1);
+  --border:rgba(255,255,255,0.08);
+}
+@media(prefers-color-scheme:light){
+  :root{
+    --bg:#f7f6fb;--bg2:#ffffff;--bg3:#eeecf8;
+    --text:#1a1825;--muted:#6b6880;
+    --border:rgba(0,0,0,0.08);
+  }
+}
+body{background:var(--bg);color:var(--text);font-family:'Courier New',monospace;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{width:100%;max-width:660px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:28px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.wm{font-size:11px;letter-spacing:.25em;color:var(--vl);font-weight:700}
+.tabs{display:flex;gap:4px;flex-wrap:wrap}
+.tab{font-family:'Courier New',monospace;font-size:10px;letter-spacing:.1em;padding:5px 11px;cursor:pointer;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all .15s}
+.tab:hover{background:var(--bg3);color:var(--text)}
+.tab.on{background:var(--v);border-color:var(--v);color:#fff}
+.panel{display:none}
+.panel.on{display:block;animation:fi .35s ease}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.lbl{font-size:9px;letter-spacing:.22em;color:var(--vl);margin-bottom:6px}
+.h1{font-size:19px;font-weight:500;color:var(--text);margin-bottom:6px;line-height:1.3}
+.sub{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.65}
+.frow{display:flex;align-items:center;margin:12px 0}
+.fn{flex:1;border-radius:5px;padding:9px 6px;text-align:center;border:1px solid var(--border);background:var(--bg3)}
+.fn.v{border-color:var(--v);background:var(--vd)}
+.fn.g{border-color:var(--g);background:var(--gd)}
+.fn.r{border-color:var(--r);background:var(--rd)}
+.fl{font-size:9px;color:var(--muted);letter-spacing:.1em;margin-bottom:2px}
+.fv{font-size:12px;font-weight:700}
+.fa{color:var(--muted);padding:0 6px;font-size:15px;flex-shrink:0}
+.mrow{display:flex;gap:8px;margin:10px 0}
+.m{flex:1;background:var(--bg3);border-radius:4px;padding:9px 10px}
+.ml{font-size:9px;letter-spacing:.14em;color:var(--muted);margin-bottom:3px}
+.mv{font-size:17px;font-weight:500;color:var(--text)}
+.mv.g{color:var(--g)}.mv.r{color:var(--r)}.mv.v{color:var(--vl)}
+.sbar{height:5px;border-radius:3px;background:var(--border);margin:6px 0;overflow:hidden}
+.sf{height:100%;border-radius:3px}
+.sg{background:var(--g)}.sr{background:var(--r)}
+.term{background:#0c0c0f;border:1px solid #2a2a35;border-radius:4px;padding:12px 14px;font-size:11px;line-height:1.95;margin:10px 0;color:#e8e6f0}
+.tg{color:#34c77b}.tr{color:#e05555}.tv{color:#a478f0}.tm{color:#555}.tw{color:#e8e6f0}
+.crow{display:flex;justify-content:space-between;align-items:center;padding:8px 11px;background:var(--bg3);border-radius:3px;font-size:11px;margin-bottom:5px}
+.crow a{color:var(--vl);font-size:10px;text-decoration:none}
+.crow a:hover{text-decoration:underline}
+.vrow{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border-radius:4px;margin-bottom:6px;border-left:3px solid var(--border)}
+.vrow.live{border-left-color:var(--g)}
+.vrow.pending{border-left-color:var(--a)}
+.vdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.vdot.g{background:var(--g);animation:pulse 2s infinite}
+.vdot.a{background:var(--a)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.vtag{font-size:9px;letter-spacing:.12em;padding:2px 7px;border-radius:2px;border:1px solid}
+.vtag.g{color:var(--g);border-color:var(--g);background:var(--gd)}
+.vtag.a{color:var(--a);border-color:var(--a);background:var(--ad)}
+.pbar{height:3px;border-radius:2px;background:var(--border);margin-top:4px;overflow:hidden}
+.pfill{height:100%;background:var(--g);border-radius:2px}
+.note{font-size:11px;padding:9px 12px;border-radius:4px;border:1px solid;margin:10px 0;line-height:1.6}
+.note.g{border-color:var(--g);background:var(--gd);color:var(--g)}
+.note.r{border-color:var(--r);background:var(--rd);color:var(--r)}
+.note.v{border-color:var(--v);background:var(--vd);color:var(--vl)}
+.def{display:flex;gap:10px;padding:11px;background:var(--bg3);border-radius:5px;border-left:3px solid var(--v);margin-bottom:8px}
+.dn{font-size:17px;font-weight:700;color:var(--vl);flex-shrink:0;width:22px}
+.dt{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px}
+.dd{font-size:11px;color:var(--muted)}
+.btn-row{display:flex;align-items:center;gap:8px;margin-top:16px}
+.btn{font-family:'Courier New',monospace;font-size:10px;letter-spacing:.14em;padding:8px 14px;cursor:pointer;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all .15s}
+.btn:hover{background:var(--bg3);color:var(--text)}
+.btn.p{background:var(--v);border-color:var(--v);color:#fff}
+.btn.p:hover{background:#6a3cc4}
+.sep{flex:1}
+.pg{font-size:10px;color:var(--muted);letter-spacing:.1em}
+.sdots{display:flex;gap:5px;margin-bottom:14px}
+.sd{width:6px;height:6px;border-radius:50%;background:var(--border);transition:background .25s}
+.sd.on{background:var(--v)}
+.slide{display:none}
+.slide.on{display:block;animation:fi .35s ease}
+.statrow{display:flex;gap:8px;margin:10px 0}
+.stat{flex:1;background:var(--bg3);border-radius:4px;padding:10px;text-align:center}
+.sl{font-size:9px;letter-spacing:.14em;color:var(--muted);margin-bottom:3px}
+.sv{font-size:20px;font-weight:700}
+.ssub{font-size:10px;color:var(--muted);margin-top:2px}
+</style>
 </head>
 <body>
-  <main class="card">
-    <h1>Verun Demo</h1>
-    <p>Sybil-resistant KYA infrastructure for regulated financial networks.</p>
-    <ul>
-      <li>Repo: <a href="https://github.com/rafaschul/verun-protocol" target="_blank" rel="noreferrer">verun-protocol</a></li>
-      <li>Docs: <a href="https://verun-docs-1-2.vercel.app/" target="_blank" rel="noreferrer">verun-docs-1-2.vercel.app</a></li>
-      <li>Network: Base Sepolia</li>
-    </ul>
-  </main>
+<div class="card">
+  <div class="header">
+    <span class="wm">VERUN.NETWORK</span>
+    <div class="tabs">
+      <button class="tab on" onclick="switchTab('overview')">overview</button>
+      <button class="tab" onclick="switchTab('sybil')">sybil resistance</button>
+      <button class="tab" onclick="switchTab('validator')">validator mode</button>
+      <button class="tab" onclick="switchTab('contracts')">contracts</button>
+    </div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="panel on" id="tab-overview">
+    <div class="sdots" id="ov-dots">
+      <div class="sd on"></div><div class="sd"></div><div class="sd"></div>
+    </div>
+
+    <div class="slide on" id="ov0">
+      <div class="lbl">THE PROBLEM</div>
+      <div class="h1">AI agents act in regulated finance.<br>Nobody verifies them.</div>
+      <div class="sub">KYC verifies humans. KYB verifies businesses. When an AI agent mints a security token, transfers funds, or executes a compliance decision — who verifies the agent?</div>
+      <div class="frow">
+        <div class="fn r"><div class="fl">AI AGENT</div><div class="fv" style="color:var(--r)">unknown</div></div>
+        <div class="fa">→</div>
+        <div class="fn r"><div class="fl">OPERATION</div><div class="fv" style="color:var(--r)">unverified</div></div>
+        <div class="fa">→</div>
+        <div class="fn r"><div class="fl">AUDIT</div><div class="fv" style="color:var(--r)">none</div></div>
+      </div>
+      <div class="note r">Regulated operations — zero agent accountability</div>
+    </div>
+
+    <div class="slide" id="ov1">
+      <div class="lbl">THE SOLUTION</div>
+      <div class="h1">Verun: Sybil-resistant KYA.</div>
+      <div class="sub">Every agent gets an on-chain Trust Score. 2-of-3 validator consensus gates every operation. Permanent audit trail on Base Sepolia. Fake agents can't fake their score.</div>
+      <div class="frow">
+        <div class="fn g"><div class="fl">AI AGENT</div><div class="fv" style="color:var(--g)">Score: 820</div></div>
+        <div class="fa">→</div>
+        <div class="fn v"><div class="fl">VERUN</div><div class="fv" style="color:var(--vl)">2-of-3 vote</div></div>
+        <div class="fa">→</div>
+        <div class="fn g"><div class="fl">VERDICT</div><div class="fv" style="color:var(--g)">ALLOW ✓</div></div>
+      </div>
+      <div class="note v">Fee: 70% treasury · 10% validator · 10% kickback · 10% reserve</div>
+    </div>
+
+    <div class="slide" id="ov2">
+      <div class="lbl">LIVE USE CASE — TOKENFORGE</div>
+      <div class="h1">Score 820. Accesses TokenForge.<br>Earns kickback.</div>
+      <div class="sub">TokenForge — MiCAR/eWpG-compliant platform with 30+ live TokenSuite deployments across 5 countries — is a founding Validator. Any agent accessing their token operations needs a Verun Trust Score.</div>
+      <div class="mrow">
+        <div class="m"><div class="ml">SCORE</div><div class="mv g">820</div></div>
+        <div class="m"><div class="ml">VERDICT</div><div class="mv g">LOW ✓</div></div>
+        <div class="m"><div class="ml">KICKBACK</div><div class="mv v">10%</div></div>
+      </div>
+      <div class="sbar"><div class="sf sg" style="width:82%"></div></div>
+      <div class="term">
+        <div><span class="tm">Agent:   </span><span class="tw">0x4C8585A...</span></div>
+        <div><span class="tm">Score:   </span><span class="tg">820 — VERIFIED tier</span></div>
+        <div><span class="tm">Platform:</span><span class="tw"> TokenForge TokenSuite</span></div>
+        <div><span class="tm">Verdict: </span><span class="tg">LOW ✓ — authorized</span></div>
+        <div><span class="tm">Kickback:</span><span class="tv"> 0.0001 USDC → Agent</span></div>
+        <div><span class="tm">On-chain:</span><span class="tv"> BaseScan verified ↗</span></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" id="ov-prev" onclick="ovPrev()" style="display:none">← prev</button>
+      <button class="btn p" id="ov-next" onclick="ovNext()">next →</button>
+      <span class="sep"></span>
+      <span class="pg" id="ov-pg">1 / 3</span>
+    </div>
+  </div>
+
+  <!-- SYBIL RESISTANCE -->
+  <div class="panel" id="tab-sybil">
+    <div class="lbl">SYBIL RESISTANCE</div>
+    <div class="h1">Fake agents can't game the system.</div>
+    <div class="sub">Four defense layers make Sybil attacks economically unviable. Score 0 agents cannot pretend to be trusted. Blocked agents cannot restart on another chain.</div>
+
+    <div class="def">
+      <div class="dn">1</div>
+      <div><div class="dt">Entry barrier</div><div class="dd">Agent must stake USDC + be sponsored by an existing validator. Cannot appear from nowhere with a clean slate.</div></div>
+    </div>
+    <div class="def">
+      <div class="dn">2</div>
+      <div><div class="dt">Behavior scoring</div><div class="dd">Score built from on-chain history: wallet age, tx volume, clean behavior. Cannot be purchased or faked.</div></div>
+    </div>
+    <div class="def">
+      <div class="dn">3</div>
+      <div><div class="dt">Validator consensus</div><div class="dd">2-of-3 independent validators must agree on every verdict. No single point of manipulation.</div></div>
+    </div>
+    <div class="def">
+      <div class="dn">4</div>
+      <div><div class="dt">Chain-persistent identity</div><div class="dd">A blocked agent cannot restart with a clean score on another chain. The score follows the agent identity permanently.</div></div>
+    </div>
+
+    <div class="lbl" style="margin-top:16px">LIVE DEMO — SCAM AGENT BLOCKED</div>
+    <div class="mrow">
+      <div class="m"><div class="ml">SCORE</div><div class="mv r">0</div></div>
+      <div class="m"><div class="ml">VERDICT</div><div class="mv r">BLOCK ✗</div></div>
+      <div class="m"><div class="ml">SLASHED</div><div class="mv r">yes</div></div>
+    </div>
+    <div class="sbar"><div class="sf sr" style="width:3%"></div></div>
+    <div class="term">
+      <div><span class="tm">Agent:   </span><span class="tw">0xSCAM...</span></div>
+      <div><span class="tm">Score:   </span><span class="tr">0 — unregistered</span></div>
+      <div><span class="tm">Dest:    </span><span class="tr">sanctioned address</span></div>
+      <div><span class="tm">Verdict: </span><span class="tr">BLOCK ✗ — consensus 3/3</span></div>
+      <div><span class="tm">Event:   </span><span class="tr">ValidatorSlashed emitted</span></div>
+      <div><span class="tm">Audit:   </span><span class="tv">permanent on-chain record ↗</span></div>
+      <div class="tr">Cannot restart. Score follows identity across all chains.</div>
+    </div>
+    <div class="note r">Human Passport protects humans from bots. Verun protects agent networks from fake agents.</div>
+  </div>
+
+  <!-- VALIDATOR MODE -->
+  <div class="panel" id="tab-validator">
+    <div class="lbl">VALIDATOR NETWORK</div>
+    <div class="h1">Every regulated institution joins<br>as a Validator. Earns 10% automatically.</div>
+    <div class="sub">Zero setup. We host the node. Each institution earns 10% of every evaluation fee from agents on their network. Automatic. On-chain. No invoice.</div>
+
+    <div class="lbl">ACTIVE NODES</div>
+    <div class="vrow live">
+      <div class="vdot g"></div>
+      <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text)">Validator Node 1</div><div style="font-size:10px;color:var(--muted)">0x3001... · port 3001 · Base Sepolia</div><div class="pbar"><div class="pfill" style="width:94%"></div></div></div>
+      <div class="vtag g">LIVE</div>
+    </div>
+    <div class="vrow live">
+      <div class="vdot g"></div>
+      <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text)">Validator Node 2</div><div style="font-size:10px;color:var(--muted)">0x3002... · port 3002 · Base Sepolia</div><div class="pbar"><div class="pfill" style="width:91%"></div></div></div>
+      <div class="vtag g">LIVE</div>
+    </div>
+    <div class="vrow live">
+      <div class="vdot g"></div>
+      <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text)">Validator Node 3</div><div style="font-size:10px;color:var(--muted)">0x3003... · port 3003 · Base Sepolia</div><div class="pbar"><div class="pfill" style="width:88%"></div></div></div>
+      <div class="vtag g">LIVE</div>
+    </div>
+    <div class="vrow pending">
+      <div class="vdot a"></div>
+      <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text)">TokenForge TokenSuite</div><div style="font-size:10px;color:var(--muted)">MiCAR/eWpG · 30+ platforms · 5 countries · founding validator</div></div>
+      <div class="vtag a">PILOT</div>
+    </div>
+    <div class="vrow pending">
+      <div class="vdot a"></div>
+      <div style="flex:1"><div style="font-size:12px;font-weight:600;color:var(--text)">Bitbond</div><div style="font-size:10px;color:var(--muted)">BaFin regulated · Security Token Bank · Berlin</div></div>
+      <div class="vtag a">PLANNED</div>
+    </div>
+
+    <div class="lbl" style="margin-top:14px">2-OF-3 CONSENSUS DEMO</div>
+    <div class="term">
+      <div><span class="tm">Action:  </span><span class="tw">transfer $500 USDC</span></div>
+      <div><span class="tm">Agent:   </span><span class="tg">score 820 — VERIFIED</span></div>
+      <div><span class="tm">Node 1:  </span><span class="tg">APPROVE ✓ signed</span></div>
+      <div><span class="tm">Node 2:  </span><span class="tg">APPROVE ✓ signed</span></div>
+      <div><span class="tm">Node 3:  </span><span class="tg">APPROVE ✓ signed</span></div>
+      <div><span class="tm">Result:  </span><span class="tg">3/3 consensus → LOW verdict</span></div>
+      <div><span class="tm">Fee:     </span><span class="tv">70/10/10/10 split on-chain</span></div>
+    </div>
+
+    <div class="statrow">
+      <div class="stat"><div class="sl">VALIDATOR SHARE</div><div class="sv" style="color:var(--vl)">10%</div><div class="ssub">per evaluation</div></div>
+      <div class="stat"><div class="sl">AGENT KICKBACK</div><div class="sv" style="color:var(--g)">10%</div><div class="ssub">score 800+</div></div>
+      <div class="stat"><div class="sl">SETUP COST</div><div class="sv">$0</div><div class="ssub">we host the node</div></div>
+    </div>
+  </div>
+
+  <!-- CONTRACTS -->
+  <div class="panel" id="tab-contracts">
+    <div class="lbl">LIVE — BASE SEPOLIA TESTNET</div>
+    <div class="h1">6 contracts. All verified on-chain.</div>
+    <div class="sub" style="margin-bottom:12px">Click any address to verify on BaseScan.</div>
+    <div class="crow"><span style="color:var(--g);font-weight:700">● AgentRegistry</span><a href="https://sepolia.basescan.org/address/0x4362794FA4768A3986772275eA0ea113510Cc716" target="_blank">0x4362...Cc716 ↗</a></div>
+    <div class="crow"><span style="color:var(--g);font-weight:700">● ValidatorRegistry</span><a href="https://sepolia.basescan.org/address/0x838EEf0E97D6c4b5dAd520c662f0cA80c1549fAA" target="_blank">0x838E...49fAA ↗</a></div>
+    <div class="crow"><span style="color:var(--g);font-weight:700">● EvaluationEngine</span><a href="https://sepolia.basescan.org/address/0x8B3d26B9259AF379796777fc69fcCf84bd341cef" target="_blank">0x8B3d...41cef ↗</a></div>
+    <div class="crow"><span style="color:var(--g);font-weight:700">● AuditLog</span><a href="https://sepolia.basescan.org/address/0xe19f690B1423196121C9F3154bb463b9836619ba" target="_blank">0xe19f...19ba ↗</a></div>
+    <div class="crow"><span style="color:var(--g);font-weight:700">● FeeVault</span><a href="https://sepolia.basescan.org/address/0x4b7cc355a7c5B127aD0a6fcDAb9B39F225A6Fb85" target="_blank">0x4b7c...Fb85 ↗</a></div>
+    <div class="crow"><span style="color:var(--g);font-weight:700">● MockUSDC</span><a href="https://sepolia.basescan.org/address/0x5010fBd165821A851D050AA652B9B3FCB145eF99" target="_blank">0x5010...eF99 ↗</a></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <div style="flex:1;background:var(--bg3);border-radius:4px;padding:10px;text-align:center">
+        <div style="font-size:9px;letter-spacing:.14em;color:var(--muted);margin-bottom:3px">NETWORK</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)">Base Sepolia</div>
+      </div>
+      <div style="flex:1;background:var(--bg3);border-radius:4px;padding:10px;text-align:center">
+        <div style="font-size:9px;letter-spacing:.14em;color:var(--muted);margin-bottom:3px">GITHUB</div>
+        <a href="https://github.com/rafaschul/verun-protocol" target="_blank" style="font-size:11px;color:var(--vl)">rafaschul/verun-protocol ↗</a>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:10px;letter-spacing:.18em;color:var(--vl);margin-top:14px">
+      verun.network — The Synthesis Hackathon — March 2026
+    </div>
+  </div>
+</div>
+
+<script>
+let ovCur=0;const ovTotal=3;
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach(b=>{
+    b.classList.toggle('on',b.getAttribute('onclick').includes("'"+t+"'"));
+  });
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id==='tab-'+t));
+}
+function ovShow(n){
+  document.querySelectorAll('#tab-overview .slide').forEach((s,i)=>s.classList.toggle('on',i===n));
+  document.querySelectorAll('#ov-dots .sd').forEach((d,i)=>d.classList.toggle('on',i===n));
+  document.getElementById('ov-pg').textContent=(n+1)+' / '+ovTotal;
+  document.getElementById('ov-prev').style.display=n===0?'none':'';
+  const nb=document.getElementById('ov-next');
+  nb.textContent=n===ovTotal-1?'restart ↺':'next →';
+  nb.className=n===ovTotal-1?'btn':'btn p';
+}
+function ovNext(){ovCur=ovCur===ovTotal-1?0:ovCur+1;ovShow(ovCur);}
+function ovPrev(){if(ovCur>0){ovCur--;ovShow(ovCur);}}
+</script>
 </body>
 </html>
