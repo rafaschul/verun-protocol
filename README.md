@@ -6,6 +6,12 @@ Know Your Agent (KYA) infrastructure for regulated financial networks.
 
 Verun scores AI agents, routes risk decisions through validator consensus, and records every verdict on-chain for auditability. It separates normal approvals from blocked actions and enforces deterministic fee logic with score-based kickbacks. The result is a transparent trust layer for agent-to-agent operations in regulated finance.
 
+## Live Links (current submission state)
+
+- Live Demo: https://verun-protocol.vercel.app/
+- Repository: https://github.com/rafaschul/verun-protocol
+- Backup docs (older deployment line): https://verun-docs-1-2.vercel.app/
+
 ## Live Contracts (Base Sepolia)
 
 - MockUSDC: `0x5010fBd165821A851D050AA652B9B3FCB145eF99`  
